@@ -9,12 +9,9 @@ header("Pragma: no-cache");
 <html>
 <body>
 
-<h1>Happy? Happy!</h1>
+<h1>Happy? Super Happy!</h1>
 
-<a href='grabber.php?t=<?php echo time(); ?>'>Try grab new images</a><br/>
-<a href='grabber_from_webarchive.php?t=<?php echo time(); ?>'>Try grab old images from web archive</a>
 <?php
-
 include 'helpers.php';
 
 $files1 = get_files_with_meta_data('saved/');
@@ -24,51 +21,50 @@ $files4 = get_files_with_meta_data('saved4/');
 
 $files = (object) array_merge((array) $files1, (array) $files2, (array) $files3, (array) $files4);
 
-print ('<p>Processed url_params: '.count(array_keys((array)$files)).'</p>');
+/*
+asusmed timestamp to date()
+*/
 
-$files_grouped_by_date = (object)null;
 
-foreach ($files as $file) {
-	$date_for_separator = ($file->{'url_param_type'} == 1) ? url_param_to_date($file->{'url_param'}, 'd-m-Y') : url_param_to_date2($file->{'url_param'}, 'd-m-Y');
+/*
+date to asusmed timestamp ()
+*/
 
-	if (property_exists($files_grouped_by_date, $date_for_separator)) {
-    	array_push($files_grouped_by_date->{$date_for_separator}, $file);
-    } else {
-    	$files_grouped_by_date->{$date_for_separator} = [$file];
-    };
-}
+/*
+- unify:
+Get one array
+Calulate assumed timestamp for images that do not comply the format
+Get file path
+Get file size
+*/
 
-$size = 0;
-$not_null_count = 0;
+/*
+- clean up:
+iterate over every file in the array:
+- same assumed timestamp but in different folders
+- same filesize but differnt assumed timestamp
+*/
 
-foreach($files_grouped_by_date as $key => $value) {
-	if (count($value)>0) { //TODO remove?
-    	$output = [];
-    	foreach ($value as $file) {
-        	$filename = $file->{'path'};
-        	$file_size = $file->{'size'};
-        	if ($file_size <> 0) {
-				$date = url_param_to_date($file->{'url_param'}, 'd-m-Y H:i');
-				$size += $file_size;
-				$size_readable = human_filesize($file_size);
-				$not_null_count++;
-            
-    			array_push($output, '<a href="'.$filename.'"><img loading="lazy" src="'.$filename.'" width="150" height="100" title="'.$date.' '.$size_readable.'"></a>');
-            }
-    	}
-    	print '<p><b>'.$key.'</b> '.count($output).' unique images of '.count($value).' downloaded</p>';
-    
-    	foreach ($output as $line) {
-        	print $line;	
-        }
-    	
-    	print '<br/>';
-    }
-}
 
-$z = human_filesize($size);
-print '<p>Storage space taken: '.$z.'</p>';
-print '<p>Non empty images: '.$not_null_count.'</p>';
+
+function find_by_filesize($files, $file_to_find) {
+	$file_to_find_size = $file_to_find->{'size'};
+	
+	if ($file_to_find_size == 0) {
+		return false;
+	};
+
+	foreach ($files as $file) {
+		$file_in_the_folder_size = $file->{'size'};
+		
+		if ($file_in_the_folder_size == $file_to_find_size && $file_to_find->{'url_param'} <> $file_to_find->{'url_param'}) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
 ?>
 </body>
 </html>

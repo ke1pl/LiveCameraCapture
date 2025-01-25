@@ -11,6 +11,22 @@ function url_param_to_date($url_param, $format) {
 	return $date->format($format);  // Local time
 }
 
+function url_param_to_date2($url_param, $format) {
+	// String to be converted to DateTime
+$dateString = substr($url_param, 0, 8);
+
+// Specify the format of the input string
+$format = 'Ymd';
+
+// Convert the string to a DateTime object
+$date = DateTime::createFromFormat($format, $dateString);
+	//$date = new DateTime("@".$timestamp);  // will snap to UTC because of the "@timezone" syntax
+	//echo $date->format('Y-m-d') . "<br>";  // UTC time
+	$date->setTimezone(new DateTimeZone('America/Winnipeg'));
+
+	return $date->format($format);  // Local time
+}
+
 function human_filesize($bytes, $decimals = 2) {
   $sz = 'BKMGTP';
   $factor = floor((strlen($bytes) - 1) / 3);
@@ -18,8 +34,7 @@ function human_filesize($bytes, $decimals = 2) {
   return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
 }
 
-function get_files_with_meta_data () {
-	$dir    = 'saved/';
+function get_files_with_meta_data ($dir) {
 	$weeds = array('.', '..');
 	$output = (object)null;
 
@@ -28,9 +43,14 @@ function get_files_with_meta_data () {
 	foreach ($files as $filename) {
     	$url_param = str_replace(['.jpg'], '', $filename);
     	$filename = $dir.$filename;
+    	$url_param_type = (strlen($url_param) == 14) ? "2" : "1";
+    	//$unified_filename = ($url_param_type == 1) ? $filename : "hey";
     
     	$file_with_meta_data = (object)null;
     	$file_with_meta_data->{'url_param'} = $url_param;
+    	$file_with_meta_data->{'url_param_type'} = $url_param_type;
+    	$file_with_meta_data->{'url_param_2'} = substr($url_param, 0, 8);
+    	$file_with_meta_data->{'dir'} = $dir;
     	$file_with_meta_data->{'path'} = $filename;
     	$file_with_meta_data->{'size'} = filesize($filename);
     	$file_with_meta_data->{'last_modify'} = filemtime($filename);

@@ -16,15 +16,19 @@ header("Pragma: no-cache");
 
 include 'helpers.php';
 
-$files = get_files_with_meta_data();
-//var_dump($files_new);
+$files1 = get_files_with_meta_data('saved/');
+$files2 = get_files_with_meta_data('saved2/');
+$files3 = get_files_with_meta_data('saved3/');
+$files4 = get_files_with_meta_data('saved4/');
+
+$files = (object) array_merge((array) $files1, (array) $files2, (array) $files3, (array) $files4);
 
 print ('<p>Processed url_params: '.count(array_keys((array)$files)).'</p>');
 
 $files_grouped_by_date = (object)null;
 
 foreach ($files as $file) {
-	$date_for_separator = url_param_to_date($file->{'url_param'}, 'd-m-Y');
+	$date_for_separator = ($file->{'url_param_type'} == 1) ? url_param_to_date($file->{'url_param'}, 'd-m-Y') : url_param_to_date2($file->{'url_param'}, 'd-m-Y');
 
 	if (property_exists($files_grouped_by_date, $date_for_separator)) {
     	array_push($files_grouped_by_date->{$date_for_separator}, $file);

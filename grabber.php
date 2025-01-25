@@ -4,7 +4,7 @@ include 'helpers.php';
 
 $dir    = 'saved/';
 
-$files = get_files_with_meta_data();
+$files = get_files_with_meta_data('saved/');
 //var_dump($files_new);ihio;
 
 $ignored = 0;
