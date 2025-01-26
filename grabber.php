@@ -49,7 +49,7 @@ $size = 0;
 foreach ($downloaded_files as $filename) {
 	$filename = $filename; //Attention!
 	$url_param = str_replace([$dir, '.jpg'], '', $filename);
-	$date = url_param_to_date($url_param, 'd-m-Y H:i');
+	$date = url_param_to_date($url_param)->format('d-m-Y H:i');
 	$file_size = filesize($filename);
 	$size_readable = human_filesize($file_size);
 

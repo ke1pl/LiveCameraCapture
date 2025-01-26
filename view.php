@@ -16,10 +16,10 @@ header("Pragma: no-cache");
 
 include 'helpers.php';
 
-$files1 = get_files_with_meta_data('saved/');
-$files2 = get_files_with_meta_data('saved2/');
-$files3 = get_files_with_meta_data('saved3/');
-$files4 = get_files_with_meta_data('saved4/');
+$files1 = get_files('saved/');
+$files2 = get_files('saved2/');
+$files3 = get_files('saved3/');
+$files4 = get_files('saved4/');
 
 $files = (object) array_merge((array) $files1, (array) $files2, (array) $files3, (array) $files4);
 
@@ -28,7 +28,7 @@ print ('<p>Processed url_params: '.count(array_keys((array)$files)).'</p>');
 $files_grouped_by_date = (object)null;
 
 foreach ($files as $file) {
-	$date_for_separator = ($file->{'url_param_type'} == 1) ? url_param_to_date($file->{'url_param'}, 'd-m-Y') : url_param_to_date2($file->{'url_param'}, 'd-m-Y');
+	$date_for_separator = url_param_to_date($file->{'unified_number'})->format('d-m-Y');
 
 	if (property_exists($files_grouped_by_date, $date_for_separator)) {
     	array_push($files_grouped_by_date->{$date_for_separator}, $file);
@@ -47,7 +47,7 @@ foreach($files_grouped_by_date as $key => $value) {
         	$filename = $file->{'path'};
         	$file_size = $file->{'size'};
         	if ($file_size <> 0) {
-				$date = url_param_to_date($file->{'url_param'}, 'd-m-Y H:i');
+				$date = url_param_to_date($file->{'unified_number'})->format('d-m-Y H:i');
 				$size += $file_size;
 				$size_readable = human_filesize($file_size);
 				$not_null_count++;
