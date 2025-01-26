@@ -6,7 +6,7 @@ include 'helpers.php';
 
 $dir    = 'saved4/';
 
-$files = get_files_with_meta_data('saved4/');
+$files = get_files_with_meta_data('saved4/'); //thsis is brioken now, but I do not want to fix it
 
 /*$ignored = 0;
 $downloaded_files = [];
