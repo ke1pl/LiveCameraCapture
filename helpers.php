@@ -200,7 +200,7 @@ function load_db_form_file()
 	return json_decode($content);
 }
 
-function render_file($file)
+function render_file($file, $is_lazy_load = true)
 {
 	$filename = $file->{'path'};
 	$file_size = $file->{'size'};
@@ -209,7 +209,9 @@ function render_file($file)
 	$date = $date->format('Y-m-d H:i');
 	$size_readable = human_filesize($file_size);
 
-	return '<a href="' . $filename . '"><img loading="lazy" src="' . $filename . '" width="150" height="100" title="' . $date . ' ' . $size_readable . '"></a>';
+	$lazy = ($is_lazy_load) ? ' loading="lazy"' : '';
+
+	return '<a href="' . $filename . '"><img ' . $lazy . 'src="' . $filename . '" width="150" height="100" title="' . $date . ' ' . $size_readable . '"></a>';
 }
 
 ?>

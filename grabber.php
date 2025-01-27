@@ -5,7 +5,7 @@ include 'helpers.php';
 $dir = 'saved/';
 $files = load_db_form_file();
 
-print('Right after load ->'.count($files));
+print ('Right after load ->' . count($files));
 $downloaded_files = [];
 $t = date_to_url_param(new DateTime("@" . time()));
 
@@ -26,12 +26,12 @@ for ($i = 145; $i >= 1; $i--) { // 144 images is theoretical max per 24 hours. T
 			//var_dump($duplicate);
 			file_put_contents($filename, '');
 			$file_with_meta_data->{'size'} = 0;
-			print '<p>' . $filename . ' is a duplicate of '.$duplicate->{'path'}.'. Erased to save space.</p>';
+			print '<p>' . $filename . ' is a duplicate of ' . $duplicate->{'path'} . '. Erased to save space.</p>';
 
 		}
-		print('Before update ->'.count($files));
+		print ('Before update ->' . count($files));
 		array_push($files, $file_with_meta_data);
-		print('After update ->'.count($files));
+		print ('After update ->' . count($files));
 
 		array_push($downloaded_files, $file_with_meta_data);
 		usleep(100);
@@ -42,8 +42,18 @@ for ($i = 145; $i >= 1; $i--) { // 144 images is theoretical max per 24 hours. T
 if (count($downloaded_files) > 0) {
 	print ('<p>count($downloaded_files) is ' . count($downloaded_files) . ' therefore update DB</p>');
 
-	print('Right Before export ->'.count($files));
-	export_db_to_file($files);
+	print ('Right Before export ->' . count($files));
+
+	$files_sorted = $files;
+
+	function cmp($a, $b)
+	{
+		return $a->{'timestamp'} > $b->{'timestamp'};
+	}
+
+	rsort($files_sorted);
+
+	export_db_to_file($files_sorted);
 }
 
 //TODO implement a better scan that starts from fetching the current defualt image and when makes real requests to CTV servers do not save a duplicate (let's save an empty file instead of the duplicate)
@@ -52,11 +62,11 @@ $count_per_day = 0;
 $count_skipped = 0;
 $size = 0;
 
-print('<br/>');
+print ('<br/>');
 
 foreach ($downloaded_files as $file) {
 	if ($file->{'size'} <> 0) {
-		print (render_file($file));
+		print (render_file($file, false));
 		$count_per_day++;
 	} else {
 		$count_skipped++;
@@ -85,5 +95,5 @@ if (filesize("latest.jpg") <> filesize($last_file->{'path'})) {
 
 print '</p>';
 
-print (render_file($last_file));
+print (render_file($last_file, false));
 ?>

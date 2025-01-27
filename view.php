@@ -23,13 +23,15 @@ header("Pragma: no-cache");
 	print ('<p>Disk free space: ' . $free . 'MB (out of ' . $total . 'MB)</p>');
 
 	$files = get_u_files(load_db_form_file());
-
+	//$files = array_slice(load_db_form_file(), 0, 500);
+	//$files = load_db_form_file();
+	
 	print ('<p>Images to render: ' . count($files) . '</p>');
 
 	$files_grouped_by_date = (object) null;
 
 	foreach ($files as $file) {
-		$date = new DateTime("@" .$file->{'timestamp'});
+		$date = new DateTime("@" . $file->{'timestamp'});
 		$date->setTimezone(new DateTimeZone('America/Winnipeg'));
 		$date = $date->format('Y-m-d');
 
@@ -40,13 +42,14 @@ header("Pragma: no-cache");
 		}
 	}
 
-	function cmp($a, $b) {
+	function cmp($a, $b)
+	{
 		return $a->timestamp > $b->timestamp;
 	}
 
 	$size = 0;
 
-	$keys = array_keys((array)$files_grouped_by_date);
+	$keys = array_keys((array) $files_grouped_by_date);
 
 	rsort($keys);
 
@@ -61,9 +64,9 @@ header("Pragma: no-cache");
 			foreach ($value as $file) {
 				$file_size = $file->{'size'};
 				//if ($file_size <> 0) {
-					$size += $file_size;
+				$size += $file_size;
 
-					array_push($output, render_file($file));
+				array_push($output, render_file($file));
 				//}
 			}
 			print '<p><b>' . $key . '</b> ' . count($output) . ' unique images of ' . count($value) . ' downloaded</p>';
