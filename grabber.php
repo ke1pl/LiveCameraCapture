@@ -52,7 +52,7 @@ $count_per_day = 0;
 $count_skipped = 0;
 $size = 0;
 
-print('<br/');
+print('<br/>');
 
 foreach ($downloaded_files as $file) {
 	if ($file->{'size'} <> 0) {

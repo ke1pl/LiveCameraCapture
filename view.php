@@ -46,7 +46,13 @@ header("Pragma: no-cache");
 
 	$size = 0;
 
-	foreach ($files_grouped_by_date as $key => $value) {
+	$keys = array_keys((array)$files_grouped_by_date);
+
+	rsort($keys);
+
+	foreach ($keys as $key) {
+		$value = $files_grouped_by_date->{$key};
+
 		if (count($value) > 0) { //TODO remove?
 			$output = [];
 
