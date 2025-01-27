@@ -21,15 +21,8 @@ header("Pragma: no-cache");
 	$files4 = get_files('saved4/');
 
 	$files = array_merge($files1, $files2, $files3, $files4);
-	//$files = $files4;
-	
-	/*
-	   - clean up:
-	   iterate over every file in the array:
-	   - same assumed timestamp but in different folders
-	   - same filesize but differnt assumed timestamp
-	   */
 
+	// Stage 1
 	$zeros = [];
 	$not_zeros = [];
 
@@ -41,93 +34,46 @@ header("Pragma: no-cache");
 		}
 	}
 
-	print ('<p>Processed url_params: ' . count($files) . '</p>');
-	print ('<p>Zeros: ' . count($zeros) . '</p>');
+	print ('<p>Total files: ' . count($files) . '</p>');
+	//print ('<p>Zeros: ' . count($zeros) . '</p>');
 	print ('<p>Not zeros: ' . count($not_zeros) . '</p>');
 
-	function find_by_filesize($files, $file_to_find)
-	{
-		foreach ($files as $file) {
-			if ($file->{'size'} == $file_to_find->{'size'}) {
-				return true;
+	// Stage 2
+	$files_grouped_by_hash = group_by_key($not_zeros, 'hash');
+
+	$files_without_duplicates = [];
+	foreach ($files_grouped_by_hash as $group) {
+		if (count($group) == 1) {
+			array_push($files_without_duplicates, $group[0]);
+		}
+
+		if (count($group) > 1) {
+			//var_dump($group);
+			$oldest_file = $group[0];
+			foreach ($group as $file) {
+				if ($file->{'unified_number'} < $oldest_file->{'unified_number'}) {
+					$oldest_file = $file;
+				}
 			}
-		}
-
-		return false;
-	}
-
-	$clean = [];
-	$matchigng_by_the_file_size = [];
-
-	foreach ($not_zeros as $file) {
-		if (!find_by_filesize($clean, $file)) {
-			array_push($clean, $file);
-		} else {
-			array_push($matchigng_by_the_file_size, $file);
+			array_push($files_without_duplicates, $oldest_file);
 		}
 	}
+	print ('<p>Files without duplicates: ' . count($files_without_duplicates) . '</p>');
 
-	print ('<p>without filesize collisions: ' . count($clean) . '</p>');
+	// Stage 3
+	$files_grouped_by_un = group_by_key($files_without_duplicates, 'unified_number');
 
-	$superclean = [];
-	$matchigng_by_un = [];
-	function find_by_un($files, $file_to_find)
-	{
-		foreach ($files as $file) {
-			if ($file->{'unified_number'} == $file_to_find->{'unified_number'}) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	foreach ($clean as $file) {
-		if (!find_by_un($superclean, $file)) {
-			array_push($superclean, $file);
-		} else {
-			array_push($matchigng_by_un, $file);
+	$number_of_affected_un = 0;
+	$number_of_duplicates = 0;
+	foreach ($files_grouped_by_un as $file) {
+		if (count($file) > 1) {
+			$number_of_duplicates += count($file);
+			$number_of_affected_un++;
 		}
 	}
+	print ('<p>UN collisions: ' . $number_of_affected_un . '(' . $number_of_duplicates . ' files)</p>');
 
-	print ('<p>without filename collisions: ' . count($superclean) . '</p>');
-
-	$files_grouped_by_size = (object) null;
-
-	foreach ($matchigng_by_the_file_size as $file) {
-		$separator = $file->{'size'};
-
-		if (property_exists($files_grouped_by_size, $separator)) {
-			array_push($files_grouped_by_size->{$separator}, $file);
-		} else {
-			$files_grouped_by_size->{$separator} = [$file];
-		}
-	}
-
-	foreach ($files_grouped_by_size as $key => $value) {
-		if (count($value) > 0) { //TODO remove?
-			$output = [];
-			foreach ($value as $file) {
-				$filename = $file->{'path'};
-				$file_size = $file->{'size'};
-				$date = url_param_to_date($file->{'unified_number'})->format('Y-m-d H:i');
-				$size_readable = human_filesize($file_size);
-
-				print ('<a href="' . $filename . '"><img loading="lazy" src="' . $filename . '" width="150" height="100" title="' . $date . ' ' . $size_readable . '"></a>');
-			}
-			print '<br/>';
-		}
-	}
-	/*
-	   foreach ($matchigng_by_the_file_size as $file) {
-		   $filename = $file->{'path'};
-		   $file_size = $file->{'size'};
-			   $date = url_param_to_date($file->{'unified_number'})->format('Y-m-d H:i');
-			   $size_readable = human_filesize($file_size);
-		   
-			   print('<a href="'.$filename.'"><img loading="lazy" src="'.$filename.'" width="150" height="100" title="'.$date.' '.$size_readable.'"></a>');
-	   }*/
-
+	export_db_to_file($files_without_duplicates);
 	?>
 </body>
 

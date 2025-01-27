@@ -17,19 +17,20 @@ header("Pragma: no-cache");
 
 	include 'helpers.php';
 
-	$files1 = get_files('saved/');
-	$files2 = get_files('saved2/');
-	$files3 = get_files('saved3/');
-	$files4 = get_files('saved4/');
+	$free = round((disk_free_space("/") / 1024) / 1024);
+	$total = round((disk_total_space("/") / 1024) / 1024);
+	print ('<p>Disk free space: ' . $free . 'MB (out of ' . $total . 'MB)</p>');
 
-	$files = array_merge($files1, $files2, $files3, $files4);
+	$files = load_db_form_file();
 
-	print ('<p>Processed url_params: ' . count($files) . '</p>');
+	print ('<p>Images to render: ' . count($files) . '</p>');
 
 	$files_grouped_by_date = (object) null;
 
 	foreach ($files as $file) {
-		$date_for_separator = url_param_to_date($file->{'unified_number'})->format('Y-m-d');
+		$date_for_separator = url_param_to_date($file->{'unified_number'});
+		$date_for_separator->setTimezone(new DateTimeZone('America/Winnipeg'));
+		$date_for_separator = $date_for_separator->format('Y-m-d');
 
 		if (property_exists($files_grouped_by_date, $date_for_separator)) {
 			array_push($files_grouped_by_date->{$date_for_separator}, $file);
@@ -49,7 +50,9 @@ header("Pragma: no-cache");
 				$filename = $file->{'path'};
 				$file_size = $file->{'size'};
 				if ($file_size <> 0) {
-					$date = url_param_to_date($file->{'unified_number'})->format('Y-m-d H:i');
+					$date = url_param_to_date($file->{'unified_number'});
+					$date->setTimezone(new DateTimeZone('America/Winnipeg'));
+					$date = $date->format('Y-m-d H:i');
 					$size += $file_size;
 					$size_readable = human_filesize($file_size);
 					$not_null_count++;

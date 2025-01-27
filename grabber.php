@@ -30,10 +30,10 @@ for ($i = 145; $i >= 1; $i--) { // 144 images is theoretical max per 24 hours. T
 		$file_with_meta_data->{'last_modify'} = filemtime($filename);
 
 		/*if ($potential_duplicate) {
-			   file_put_contents($filename, '');
-			   $file_with_meta_data->{'size'} = 0;
-			   print '<p>'.$filename.' is a duplicate of '.$potential_duplicate.'. Erasing.</p>';
-		   }*/
+					 file_put_contents($filename, '');
+					 $file_with_meta_data->{'size'} = 0;
+					 print '<p>'.$filename.' is a duplicate of '.$potential_duplicate.'. Erasing.</p>';
+				 }*/
 
 		array_push($files, $file_with_meta_data);
 
