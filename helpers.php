@@ -107,7 +107,20 @@ function get_files($dir, $add_hash_property = false)
 
 function get_u_files($files)
 {
-	$files_grouped_by_hash = group_by_key($files, 'hash');
+	// Stage 1
+	$not_zeros = [];
+
+	foreach ($files as $file) {
+		if ($file->{'size'} <> 0) {
+			array_push($not_zeros, $file);
+		}
+	}
+
+	//print ('<p>Zeros: ' . count($zeros) . '</p>');
+	//print ('<p>Not zeros: ' . count($not_zeros) . '</p>');*/
+
+	// Stage 2
+	$files_grouped_by_hash = group_by_key($not_zeros, 'hash');
 
 	$files_without_duplicates = [];
 	foreach ($files_grouped_by_hash as $group) {
